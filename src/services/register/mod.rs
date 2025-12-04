@@ -2,11 +2,29 @@ use std::io;
 use crate::services;
 use chrono::NaiveDate;
 use std::str::FromStr;
+use crate:: models;
+
+pub fn run(file_path: &str) {
+    println!("収支の登録をおこないます。");
+    let register_type = input_register_type();
+    let name = input_name();
+    let category_type = input_category_type(register_type);
+    let price = input_price();
+    let date = input_date();
+    let category = models::Item::get_category(register_type, category_type);
+
+    let item = models::Item::new(name, category, price, date);
+    println!("{:?}", &item);
+
+    let mut data = services::io::read_data_or_create_new_data(file_path);
+    data.push(item);
+    services::io::write_to_json(&data, file_path);
+}
 
 fn input_register_type() -> u8 {
     println!("登録種別を登録してください(0: 収入、1: 支出)");
     let mut register_type: String = String::new();
-    io.stdin().read_line(&mut register_type).expect("登録種別の入力に失敗しました。");
+    io::stdin().read_line(&mut register_type).expect("登録種別の入力に失敗しました。");
     let register_type = register_type.trim().parse().expect("登録種別は数値で入力してください。");
     services::validate::InputValidator::validate_register_type(register_type);
     register_type
@@ -15,7 +33,7 @@ fn input_register_type() -> u8 {
 fn input_name() -> String {
     println!("品目名を登録してください");
     let mut name = String::new();
-    io.stdin().read_line(&mut name).expect("品目めいの入力に失敗しました。");
+    io::stdin().read_line(&mut name).expect("品目めいの入力に失敗しました。");
     name.trim().to_string()
 }
 
@@ -26,10 +44,10 @@ fn input_category_type(register_type: u8) -> u8 {
     } else {
         println!("(0:食費、1:趣味、2:その他)");
     }
-    let category_type = String::new();
-    io.stdin().read_line(&mut category_type).expect("カテゴリ種別のの入力に失敗しました。");
+    let mut category_type = String::new();
+    io::stdin().read_line(&mut category_type).expect("カテゴリ種別のの入力に失敗しました。");
     let category_type = category_type.trim().parse().expect("カテゴリは数値で入力してください。");
-    services::validate::InputValidator::validate_category_type(regoster_type, category_type);
+    services::validate::InputValidator::validate_category_type(register_type, category_type);
     category_type
 }
 
@@ -40,9 +58,9 @@ fn input_price() -> u32 {
     price.trim().parse().expect("金額は数値で入力してください。")
 }
 
-fn input_price() -> NaiveDate {
+fn input_date() -> NaiveDate {
     println!("日付を入力してください。(yyyy-mm-dd)");
     let mut date = String::new();
     io::stdin().read_line(&mut date).unwrap();
-    NaiveDate::from_str(&date).expect("日付はyyyy-mm-ddの形式で入力してください。");  
+    NaiveDate::from_str(&date).expect("日付はyyyy-mm-ddの形式で入力してください。")
 }

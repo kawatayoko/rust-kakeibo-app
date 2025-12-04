@@ -1,3 +1,3 @@
 pub mod validate;
 pub mod io;
-pub mod regiter;
+pub mod register;

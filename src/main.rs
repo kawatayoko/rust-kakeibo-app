@@ -15,6 +15,7 @@ fn main() {
         services::register::run(FILE_PATH);
         println!("登録サービス");
     } else if service_type == 1 {
+        services::summarize::run(FILE_PATH);
         println!("集計サービス");
     }
 }
